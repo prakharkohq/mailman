@@ -13,8 +13,8 @@ defmodule Mailman.ExternalSmtpAdapter do
       auth: config.auth
     ]
 
-    from_envelope_address = email.from
-    to_envelope_address = email.to
+    from_envelope_address = envelope_email(email.from)
+    to_envelope_address = Enum.map(email.to, &envelope_email(&1))
 
     ret =
       :gen_smtp_client.send_blocking(
@@ -27,9 +27,13 @@ defmodule Mailman.ExternalSmtpAdapter do
       )
 
     case ret do
-      {:error, _, _} -> ret
       {:error, _} -> ret
       _ -> {:ok, message}
     end
+  end
+
+  defp envelope_email(email_address) do
+    Regex.run(~r/([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4})/, email_address)
+    |> Enum.at(1)
   end
 end
