@@ -26,7 +26,7 @@ defmodule Mailman.TestServer do
   `test_helper.exs` file.
   """
   def start do
-    Mailman.TestServerSupervisor.start_link
+    Mailman.TestServerSupervisor.start_link()
   end
 
   def start_link(initial_state, parent_pid) do
@@ -34,16 +34,19 @@ defmodule Mailman.TestServer do
   end
 
   def deliveries, do: deliveries(self())
+
   def deliveries(pid) do
     GenServer.call(pid_for(pid), :list)
   end
 
   def register_delivery(message), do: register_delivery(self(), message)
+
   def register_delivery(pid, message) do
     GenServer.cast(pid_for(pid), {:push, message})
   end
 
   def clear_deliveries, do: clear_deliveries(self())
+
   def clear_deliveries(pid) do
     GenServer.call(pid_for(pid), :clear_deliveries)
   end
@@ -54,6 +57,7 @@ defmodule Mailman.TestServer do
     else
       unless Process.alive?(parent_pid),
         do: raise(ArgumentError, "parent pid is not alive")
+
       get_pid_for(parent_pid)
     end
   end
@@ -63,6 +67,7 @@ defmodule Mailman.TestServer do
       [] ->
         {:ok, pid} = Mailman.TestServerSupervisor.start_test_server(parent_pid)
         pid
+
       [{_parent_pid, pid}] ->
         pid
     end
@@ -75,7 +80,7 @@ defmodule Mailman.TestServer do
   end
 
   def handle_cast({:push, message}, rest) do
-    {:noreply, [message|rest]}
+    {:noreply, [message | rest]}
   end
 
   def handle_call(:list, _, state) do
@@ -86,7 +91,7 @@ defmodule Mailman.TestServer do
     {:reply, :ok, []}
   end
 
-  def handle_info({:'DOWN', _ref, _type, remote_pid, _info}, _state) do
+  def handle_info({:DOWN, _ref, _type, remote_pid, _info}, _state) do
     :ets.delete(:mailman_test_servers, remote_pid)
     {:stop, :normal, []}
   end

@@ -3,8 +3,7 @@ defmodule Mailman.LocalSmtpAdapter do
 
   @doc "Delivers an email through a locally running process"
   def deliver(config, email, message) do
-    Mailman.ExternalSmtpAdapter.deliver external_for(config),
-      email, message
+    Mailman.ExternalSmtpAdapter.deliver(external_for(config), email, message)
   end
 
   def external_for(config) do
@@ -14,5 +13,4 @@ defmodule Mailman.LocalSmtpAdapter do
       auth: :never
     }
   end
-
 end

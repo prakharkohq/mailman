@@ -3,13 +3,12 @@ defmodule Mailman.SmtpConfig do
 
   @derive {Inspect, except: [:password]}
   defstruct relay: "",
-    username: "",
-    password: "",
-    port: 1111,
-    ssl: false,
-    tls: :never,
-    auth: :always
-
+            username: "",
+            password: "",
+            port: 1111,
+            ssl: false,
+            tls: :never,
+            auth: :always
 end
 
 defimpl Mailman.Adapter, for: Mailman.SmtpConfig do

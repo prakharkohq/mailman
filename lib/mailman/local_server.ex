@@ -68,14 +68,16 @@ defmodule Mailman.LocalServer do
     :ok
   end
 
-  def relay(from, [to|rest], data) do
-    host = String.split(to, "@") |> List.last
-    :gen_smtp_client.send {from, [to], String.to_charlist(data)}, [{:relay, host}]
+  def relay(from, [to | rest], data) do
+    host = String.split(to, "@") |> List.last()
+    :gen_smtp_client.send({from, [to], String.to_charlist(data)}, [{:relay, host}])
     relay(from, rest, data)
   end
 
   def start(port) do
-    :gen_smtp_server.start __MODULE__,
-      [[], [{:allow_bare_newlines, :true}, {:port, port}]]
+    :gen_smtp_server.start(
+      __MODULE__,
+      [[], [{:allow_bare_newlines, true}, {:port, port}]]
+    )
   end
 end

@@ -1,5 +1,4 @@
 defmodule Mailman do
-
   defprotocol Adapter do
     @moduledoc "Protocol for implementing different medium of emails delivery"
     def deliver(context, email, message)
@@ -19,17 +18,21 @@ defmodule Mailman do
 
     to_task = [Adapter.deliver(config, email, message)]
 
-    cc_tasks = email.cc |> Enum.map(fn(address) ->  
-      cc_envelope = %Mailman.Email{email | to: [address]}
-      Adapter.deliver(config, cc_envelope, message)
-    end)
+    cc_tasks =
+      email.cc
+      |> Enum.map(fn address ->
+        cc_envelope = %Mailman.Email{email | to: [address]}
+        Adapter.deliver(config, cc_envelope, message)
+      end)
 
-    bcc_tasks = bcc_list |> Enum.map(fn(address) ->  
-      bcc_envelope = %Mailman.Email{email | to: [address]}
-      bcc_message = %Mailman.Email{email | bcc: [address]}
-      message = Mailman.Render.render(bcc_message, context.composer)
-      Adapter.deliver(config, bcc_envelope, message)
-    end)
+    bcc_tasks =
+      bcc_list
+      |> Enum.map(fn address ->
+        bcc_envelope = %Mailman.Email{email | to: [address]}
+        bcc_message = %Mailman.Email{email | bcc: [address]}
+        message = Mailman.Render.render(bcc_message, context.composer)
+        Adapter.deliver(config, bcc_envelope, message)
+      end)
 
     to_task ++ cc_tasks ++ bcc_tasks
   end
